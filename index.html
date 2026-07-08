@@ -131,6 +131,21 @@
                 e.style.display = show ? "block" : "none";
             });
         };
+        
+        // 🔽 初始化：一開始不顯示字源
+        window.onload = function() {
+        // 平假名字源預設不顯示
+        document.getElementById("originCheck").checked = false;
+        document.querySelectorAll(".o").forEach(e => {
+            e.style.display = "none";
+            });
+
+        // 片假名字源預設不顯示
+        document.getElementById("katakanaOriginCheck").checked = false;
+        document.querySelectorAll(".ko").forEach(e => {
+            e.style.display = "none";
+            });
+        };
 
         function buildPlayList(mode) {
             playList = [];
