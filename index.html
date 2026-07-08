@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>真人原音日文五十音表</title>
+    <style>
+        body{font-family:sans-serif;background:#f8f9fa;max-width:900px;margin:0 auto;padding:20px;color:#333}
+        h1{text-align:center;color:#2c3e50;margin-bottom:5px}
+        .mode-tip{text-align:center;font-size:14px;color:#2ecc71;margin-bottom:15px;font-weight:bold}
+        .controls{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:15px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:15px;align-items:center}
+        .cg{display:flex;align-items:center;gap:8px}
+        button{background:#3498db;color:#fff;border:none;padding:10px 15px;font-size:15px;border-radius:5px;cursor:pointer;font-weight:bold}
+        button:disabled{background:#95a5a6;cursor:not-allowed}
+        button.stop{background:#e74c3c}
+        table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,0.05)}
+        th,td{border:1px solid #eef2f5;padding:12px 2px;text-align:center}
+        th{background:#34495e;color:#fff}
+        .rh{background:#f1f2f6;font-weight:bold;color:#2c3e50;width:10%}
+        .kana-cell{cursor:pointer;width:9%;background:#fff;transition:background 0.15s}
+        .kana-cell:hover{background:#ffeaa7}
+        .p{font-size:24px;font-weight:bold;color:#2c3e50}
+        .k{font-size:14px;color:#7f8c8d}
+        .r{font-size:12px;color:#bdc3c7}
+        .o{font-size:12px;color:#8e44ad;display:block}
+        .ko{font-size:12px;color:#d35400;display:block}
+        .speaking{background:#3498db!important}
+        .speaking .p,.speaking .k,.speaking .r,.speaking .o,.speaking .ko{color:#fff!important}
+        .empty{background:#fbfbfb}
+    </style>
+</head>
+<body>
+    <h1>🇯🇵 本機離線真人五十音發音表</h1>
+    <div id="modeStatus" class="mode-tip">🔊 語音引擎就緒 (偵測本機 MP3 檔案中)</div>
+
+    <div class="controls">
+        <div class="cg">
+            <button id="vBtn" onclick="startAuto('v')">⬇️ 直行朗讀</button>
+            <button id="hBtn" onclick="startAuto('h')">➡️ 橫行朗讀</button>
+            <button class="stop" onclick="stopAuto()">⏹ 停止</button>
+        </div>
+        <div class="cg">
+            <label style="cursor:pointer;font-weight:bold;color:#e67e22;"><input type="checkbox" id="loopCheck"> 🔄 LOOP 循環播放</label>
+        </div>
+        <div class="cg"><label><b>語速(字距)：</b></label><input type="range" id="rate" min="0.5" max="3.0" step="0.5" value="1.0" oninput="document.getElementById('rv').innerText=this.value+'x'"><span id="rv">1.0x</span></div>
+        <div class="cg"><label><b>連讀次數：</b></label><select id="rep"><option value="1">讀 1 遍</option><option value="2">讀 2 遍</option><option value="3" selected>連讀 3 遍</option></select></div>
+        <div class="cg">
+            <label style="cursor:pointer;font-weight:bold;color:#16a085;">
+                <input type="checkbox" id="originCheck" checked> 📜 顯示平假名字源
+            </label>
+        </div>
+        <div class="cg">
+            <label style="cursor:pointer;font-weight:bold;color:#d35400;">
+                <input type="checkbox" id="katakanaOriginCheck" checked> 🎴 顯示片假名字源
+            </label>
+        </div>
+        <div class="cg">
+            <label style="cursor:pointer;font-weight:bold;color:#2980b9;">
+            <input type="checkbox" id="scrollCheck"> 🔽 自動捲動
+            </label>
+        </div>
+    </div>
+
+    <table id="gTable">
+        <thead><tr><th>段/行</th><th>あ行</th><th>か行</th><th>さ行</th><th>た行</th><th>な行</th><th>は行</th><th>ま行</th><th>や行</th><th>ら行</th><th>わ行</th></tr></thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        // 每個 cell: [平假名, 片假名, 羅馬字, mp3檔名, 平假名字源, 片假名字源]
+        const matrix = [
+            [["あ","ア","a","a.mp3","安","阿"],["か","カ","ka","ka.mp3","加","可"],["さ","サ","sa","sa.mp3","左","散"],["た","タ","ta","ta.mp3","太","多"],["な","ナ","na","na.mp3","奈","那"],["は","ハ","ha","ha.mp3","波","八"],["ま","マ","ma","ma.mp3","末","万"],["や","ヤ","ya","ya.mp3","也","耶"],["ら","ラ","ra","ra.mp3","良","羅"],["わ","ワ","wa","wa.mp3","和","倭"]],
+            [["い","イ","i","i.mp3","以","伊"],["き","キ","ki","ki.mp3","幾","企"],["し","シ","shi","shi.mp3","之","志"],["ち","チ","chi","chi.mp3","知","千"],["に","ニ","ni","ni.mp3","仁","尼"],["ひ","ヒ","hi","hi.mp3","比","卑"],["み","ミ","mi","mi.mp3","美","三"],["","","",""],["り","リ","ri","ri.mp3","利","里"],["","","",""]],
+            [["う","ウ","u","u.mp3","宇","右"],["く","ク","ku","ku.mp3","久","句"],["す","ス","su","su.mp3","須","寸"],["つ","ツ","tsu","tsu.mp3","川","津"],["ぬ","ヌ","nu","nu.mp3","奴","怒"],["ふ","フ","fu","fu.mp3","不","夫"],["む","ム","mu","mu.mp3","武","夢"],["ゆ","ユ","yu","yu.mp3","由","遊"],["る","ル","ru","ru.mp3","流","留"],["","","",""]],
+            [["え","エ","e","e.mp3","江","衣"],["け","ケ","ke","ke.mp3","計","介"],["せ","セ","se","se.mp3","世","勢"],["て","テ","te","te.mp3","天","丁"],["ね","ネ","ne","ne.mp3","祢","禰"],["へ","ヘ","he","he.mp3","部","戸"],["め","メ","me","me.mp3","女","米"],["","","",""],["れ","レ","re","re.mp3","礼","麗"],["","","",""]],
+            [["お","オ","o","o.mp3","於","雄"],["こ","コ","ko","ko.mp3","己","古"],["そ","ソ","so","so.mp3","曽","祖"],["と","ト","to","to.mp3","止","登"],["の","ノ","no","no.mp3","乃","能"],["ほ","ホ","ho","ho.mp3","保","穂"],["も","モ","mo","mo.mp3","毛","母"],["よ","ヨ","yo","yo.mp3","与","余"],["ろ","ロ","ro","ro.mp3","呂","路"],["を","ヲ","wo","wo.mp3","乎","遠"]],
+            [["ん","ン","n","n.mp3","无","恩"]]
+        ];
+
+                const rowNames = ["あ段(A)", "い段(I)", "う段(U)", "え段(E)", "お段(O)", "撥音"], tbody = document.querySelector("#gTable tbody");
+        let playList = [], isLoop = false, idx = 0, gc = [], jpVoice = null, currentAudio = null;
+
+        function getJpVoice() {
+            if (!window.speechSynthesis) return;
+            const voices = window.speechSynthesis.getVoices();
+            jpVoice = voices.find(v => (v.lang.includes('ja')) && (v.name.includes('Nanami') || v.name.includes('Kyoko') || v.name.includes('Natural') || v.name.includes('Google')));
+            if (!jpVoice) jpVoice = voices.find(v => v.lang.includes('ja'));
+        }
+        if (window.speechSynthesis) { window.speechSynthesis.onvoiceschanged = getJpVoice; getJpVoice(); }
+
+        matrix.forEach((rowData, rIdx) => {
+            const tr = document.createElement("tr"); tr.innerHTML = `<td class="rh">${rowNames[rIdx]}</td>`;
+            rowData.forEach((cell, cIdx) => {
+                const td = document.createElement("td");
+                if (cell.length === 0 || cell[0] === "") {
+                    td.className = "empty";
+                } else {
+                    const id = `c-${rIdx}-${cIdx}`;
+                    td.className = "kana-cell";
+                    td.id = id;
+                    td.innerHTML = `
+                        <div class="p">${cell[0]}</div>
+                        <div class="k">${cell[1]}</div>
+                        <div class="r">${cell[2]}</div>
+                        <div class="o">${cell[4]}</div>
+                        <div class="ko">${cell[5]}</div>
+                    `;
+                    td.onclick = () => { if(isLoop) stopAuto(); playSound(cell[0], cell[3]); };
+                }
+                tr.appendChild(td);
+            });
+            if (rIdx === 5) { 
+                for(let i=0; i<9; i++) { 
+                    let e=document.createElement("td"); 
+                    e.className="empty"; 
+                    tr.appendChild(e); 
+                } 
+            }
+            tbody.appendChild(tr);
+        });
+
+        // 控制字源顯示開關
+        document.getElementById("originCheck").onchange = function() {
+            const show = this.checked;
+            document.querySelectorAll(".o").forEach(e => {
+                e.style.display = show ? "block" : "none";
+            });
+        };
+        document.getElementById("katakanaOriginCheck").onchange = function() {
+            const show = this.checked;
+            document.querySelectorAll(".ko").forEach(e => {
+                e.style.display = show ? "block" : "none";
+            });
+        };
+
+        function buildPlayList(mode) {
+            playList = [];
+            if (mode === 'v') {
+                for (let col = 0; col < 10; col++) {
+                    for (let row = 0; row < 5; row++) { 
+                        if (matrix[row][col][0] !== "") 
+                            playList.push({ id: `c-${row}-${col}`, t: matrix[row][col][0], file: matrix[row][col][3] }); 
+                    }
+                }
+            } else {
+                for (let row = 0; row < 5; row++) {
+                    for (let col = 0; col < 10; col++) { 
+                        if (matrix[row][col][0] !== "") 
+                            playList.push({ id: `c-${row}-${col}`, t: matrix[row][col][0], file: matrix[row][col][3] }); 
+                    }
+                }
+            }
+            playList.push({ id: "c-5-0", t: "ん", file: "n.mp3" });
+        }
+
+        function playSound(text, filename, callback) {
+            if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+
+            currentAudio = new Audio(filename);
+            currentAudio.onplay = () => {
+                document.getElementById('modeStatus').innerText = "🟢 目前正在播放：本機高音質真人 MP3 原音";
+                document.getElementById('modeStatus').style.color = "#2ecc71";
+            };
+            if (callback) currentAudio.onended = callback;
+
+            currentAudio.play().catch(err => {
+                document.getElementById('modeStatus').innerText = "⚠️ 未偵測到本機音檔，已啟用系統相容語音發聲";
+                document.getElementById('modeStatus').style.color = "#f39c12";
+                if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+                const u = new SpeechSynthesisUtterance(text);
+                if (!jpVoice) getJpVoice();
+                if (jpVoice) u.voice = jpVoice;
+                u.lang = 'ja-JP'; u.rate = 1.0;
+                if (callback) { u.onend = callback; u.onerror = callback; }
+                gc.push(u);
+                window.speechSynthesis.speak(u);
+            });
+        }
+
+        function startAuto(mode) {
+            if (isLoop) stopAuto();
+            isLoop = true; idx = 0;
+            buildPlayList(mode);
+            document.getElementById('vBtn').disabled = true;
+            document.getElementById('hBtn').disabled = true;
+            playNext();
+        }
+
+        function playNext() {
+            if (!isLoop) return;
+            if (idx >= playList.length) { 
+                if (document.getElementById('loopCheck').checked) { idx = 0; } 
+                else { stopAuto(); return; }
+            }
+            document.querySelectorAll('.kana-cell').forEach(e => e.classList.remove('speaking'));
+            let cur = playList[idx], cell = document.getElementById(cur.id);
+            if (cell) { 
+                cell.classList.add('speaking'); 
+                if (document.getElementById('scrollCheck')?.checked) {
+                    cell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+            let rep = parseInt(document.getElementById('rep').value), cnt = 0, sf = parseFloat(document.getElementById('rate').value);
+            
+            function loop() {
+                if (!isLoop) return;
+                if (cnt >= rep) { idx++; setTimeout(playNext, 450 / sf); return; } 
+                playSound(cur.t, cur.file, () => { cnt++; gc = []; setTimeout(loop, 200 / sf); }); 
+            }
+            loop();
+        }
+
+        function stopAuto() { 
+            isLoop = false; gc = []; 
+            if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+            if (window.speechSynthesis) window.speechSynthesis.cancel(); 
+            document.querySelectorAll('.kana-cell').forEach(e => e.classList.remove('speaking')); 
+            document.getElementById('vBtn').disabled = false;
+            document.getElementById('hBtn').disabled = false;
+        }
+    </script>
+</body>
+</html>
