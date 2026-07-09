@@ -1,238 +1,510 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>真人原音日文五十音表</title>
-    <style>
-        body{font-family:sans-serif;background:#f8f9fa;max-width:900px;margin:0 auto;padding:20px;color:#333}
-        h1{text-align:center;color:#2c3e50;margin-bottom:5px}
-        .mode-tip{text-align:center;font-size:14px;color:#2ecc71;margin-bottom:15px;font-weight:bold}
-        .controls{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:15px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:15px;align-items:center}
-        .cg{display:flex;align-items:center;gap:8px}
-        button{background:#3498db;color:#fff;border:none;padding:10px 15px;font-size:15px;border-radius:5px;cursor:pointer;font-weight:bold}
-        button:disabled{background:#95a5a6;cursor:not-allowed}
-        button.stop{background:#e74c3c}
-        table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,0.05)}
-        th,td{border:1px solid #eef2f5;padding:12px 2px;text-align:center}
-        th{background:#34495e;color:#fff}
-        .rh{background:#f1f2f6;font-weight:bold;color:#2c3e50;width:10%}
-        .kana-cell{cursor:pointer;width:9%;background:#fff;transition:background 0.15s}
-        .kana-cell:hover{background:#ffeaa7}
-        .p{font-size:24px;font-weight:bold;color:#2c3e50}
-        .k{font-size:14px;color:#7f8c8d}
-        .r{font-size:12px;color:#bdc3c7}
-        .o{font-size:12px;color:#8e44ad;display:block}
-        .ko{font-size:12px;color:#d35400;display:block}
-        .speaking{background:#3498db!important}
-        .speaking .p,.speaking .k,.speaking .r,.speaking .o,.speaking .ko{color:#fff!important}
-        .empty{background:#fbfbfb}
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>JP 本機離線真人日文 104 音表 </title>
+<style>
+  :root{--rh-px:120px}
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:#f8f9fa;color:#333;max-width:980px;margin:0 auto;padding:22px}
+  h1{text-align:center;color:#2c3e50;margin:6px 0}
+  .mode-tip{text-align:center;font-size:14px;color:#2ecc71;margin-bottom:14px;font-weight:600}
+  .controls{background:#fff;border:1px solid #e6e9ee;border-radius:10px;padding:14px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .cg{display:flex;align-items:center;gap:8px}
+  button{background:#3498db;color:#fff;border:none;padding:10px 14px;font-size:14px;border-radius:6px;cursor:pointer;font-weight:700}
+  button.stop{background:#e74c3c}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.04);margin-bottom:18px;table-layout:fixed}
+  thead th{background:#34495e;color:#fff;padding:12px 8px;font-weight:700}
+  th,td{border:1px solid #eef2f5;padding:14px 10px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rh{background:#f1f2f6;font-weight:700;color:#2c3e50;width:var(--rh-px);min-width:var(--rh-px);max-width:var(--rh-px)}
+  #gTable th:not(.rh), #gTable td:not(.rh){width:calc((100% - var(--rh-px))/10);min-width:0}
+  #dTable th:not(.rh), #dTable td:not(.rh){width:calc((100% - var(--rh-px))/5);min-width:0}
+  #yTable th:not(.rh), #yTable td:not(.rh){width:calc((100% - var(--rh-px))/11);min-width:0}
+  .kana-cell{cursor:pointer;background:#fff;transition:background .12s;padding:0;min-width:0}
+  .kana-cell .cell-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px 10px}
+  .kana-cell:hover{background:#fff3bf}
+  .p{font-size:22px;font-weight:800;color:#2c3e50;line-height:1;margin:0}
+  .k{font-size:14px;color:#7f8c8d;margin:0}
+  .r{font-size:12px;color:#95a5a6;margin:0}
+  .o{font-size:12px;color:#8e44ad;display:none}
+  .ko{font-size:12px;color:#d35400;display:none}
+  .speaking{background:#2d9cdb!important}
+  .speaking .p,.speaking .k,.speaking .r,.speaking .o,.speaking .ko{color:#fff!important}
+  .empty{background:#fbfbfb}
+  @media (max-width:640px){.p{font-size:18px}.k{font-size:12px}}
+</style>
 </head>
-<body>
-    <h1>🇯🇵 本機離線真人五十音發音表</h1>
-    <div id="modeStatus" class="mode-tip">🔊 語音引擎就緒 (偵測本機 MP3 檔案中)</div>
+<!-- CSS：貼到 <head> 裡的 <style> 區塊或外部 CSS -->
+<style>
+  /* 回到頂端懸浮按鈕 */
+  #scrollTopBtn{
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(45, 156, 219, 0.85); /* 半透明藍 */
+    color: #fff;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    z-index: 9999;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transition: transform .18s ease, opacity .18s ease;
+    opacity: 0;
+    transform: translateY(8px) scale(.98);
+    backdrop-filter: blur(6px);
+  }
+  #scrollTopBtn.show{ opacity: 1; transform: translateY(0) scale(1); }
+  #scrollTopBtn:focus{ box-shadow: 0 0 0 4px rgba(45,156,219,0.18); }
+  #scrollTopBtn:hover{ transform: translateY(-3px) scale(1.02); }
 
-    <div class="controls">
-        <div class="cg">
-            <button id="vBtn" onclick="startAuto('v')">⬇️ 直行朗讀</button>
-            <button id="hBtn" onclick="startAuto('h')">➡️ 橫行朗讀</button>
-            <button class="stop" onclick="stopAuto()">⏹ 停止</button>
-        </div>
-        <div class="cg">
-            <label style="cursor:pointer;font-weight:bold;color:#e67e22;"><input type="checkbox" id="loopCheck"> 🔄 LOOP 循環播放</label>
-        </div>
-        <div class="cg"><label><b>語速(字距)：</b></label><input type="range" id="rate" min="0.5" max="3.0" step="0.5" value="2.0" oninput="document.getElementById('rv').innerText=this.value+'x'"><span id="rv">2.0x</span></div>
-        <div class="cg"><label><b>連讀次數：</b></label><select id="rep"><option value="1" selected>讀 1 遍</option><option value="2">讀 2 遍</option><option value="3">讀 3 遍</option></select></div>
-        <div class="cg">
-            <label style="cursor:pointer;font-weight:bold;color:#16a085;">
-                <input type="checkbox" id="originCheck"> 📜 顯示平假名字源
-            </label>
-        </div>
-        <div class="cg">
-            <label style="cursor:pointer;font-weight:bold;color:#d35400;">
-                <input type="checkbox" id="katakanaOriginCheck"> 🎴 顯示片假名字源
-            </label>
-        </div>
-        <div class="cg">
-            <label style="cursor:pointer;font-weight:bold;color:#2980b9;">
-            <input type="checkbox" id="scrollCheck"> 🔽 自動捲動
-            </label>
-        </div>
+  /* 小圖示樣式（可改成文字或 SVG） */
+  #scrollTopBtn .arrow{
+    font-size: 20px;
+    line-height: 1;
+    user-select: none;
+  }
+
+  /* 在小螢幕微調位置 */
+  @media (max-width:480px){
+    #scrollTopBtn{ right:12px; bottom:12px; width:48px; height:48px; }
+    #scrollTopBtn .arrow{ font-size:18px; }
+  }
+</style>
+
+<!-- HTML：貼到 <body> 結尾前（其他內容之後） -->
+<button id="scrollTopBtn" aria-label="回到頁首" title="回到頁首">
+  <span class="arrow">↑</span>
+</button>
+
+<!-- JS：貼到 <body> 結尾前，或現有 <script> 區塊內 -->
+<script>
+  (function(){
+    const btn = document.getElementById('scrollTopBtn');
+    if (!btn) return;
+
+    // 顯示條件（超過多少 px 顯示）
+    const SHOW_AT = 200;
+
+    // 監聽捲動，顯示或隱藏按鈕
+    function onScroll(){
+      if (window.scrollY > SHOW_AT) btn.classList.add('show');
+      else btn.classList.remove('show');
+    }
+    window.addEventListener('scroll', onScroll, {passive:true});
+    // 初始檢查
+    onScroll();
+
+    // 點擊平滑捲回頂端
+    btn.addEventListener('click', () => {
+      // 若支援 smooth behavior，使用它；否則 fallback
+      try {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch(e) {
+        window.scrollTo(0,0);
+      }
+    });
+
+    // 鍵盤可操作（Enter / Space）
+    btn.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'Spacebar') {
+        ev.preventDefault();
+        btn.click();
+      }
+    });
+
+    // 可選：當使用自動跳區功能時，按鈕短暫隱藏以避免干擾視覺（若你需要）
+    // window.addEventListener('scrollstart', ()=> btn.classList.remove('show')); // 若要啟用需自行實作 scrollstart
+  })();
+</script>
+
+<body>
+  <h1>🇯🇵 本機離線真人日文 104 音表 (目前只有TTS)</h1>
+  <div id="modeStatus" class="mode-tip">🔊 語音引擎就緒</div>
+
+  <div class="controls">
+    <div class="cg">
+      <button id="vBtn" onclick="startAuto('v')">⬇️ 直行朗讀</button>
+      <button id="hBtn" onclick="startAuto('h')">➡️ 橫行朗讀</button>
+      <button class="stop" id="stopBtn" onclick="stopAuto()">⏹ 停止</button>
     </div>
 
-    <table id="gTable">
-        <thead><tr><th>段/行</th><th>あ行</th><th>か行</th><th>さ行</th><th>た行</th><th>な行</th><th>は行</th><th>ま行</th><th>や行</th><th>ら行</th><th>わ行</th></tr></thead>
-        <tbody></tbody>
-    </table>
+    <div class="cg">
+      <label style="cursor:pointer"><input type="checkbox" id="loopCheck"> 🔁 LOOP</label>
+    </div>
 
-    <script>
-        // 每個 cell: [平假名, 片假名, 羅馬字, mp3檔名, 平假名字源, 片假名字源]
-        const matrix = [
-            [["あ","ア","a","a.mp3","安","阿"],["か","カ","ka","ka.mp3","加","可"],["さ","サ","sa","sa.mp3","左","散"],["た","タ","ta","ta.mp3","太","多"],["な","ナ","na","na.mp3","奈","那"],["は","ハ","ha","ha.mp3","波","八"],["ま","マ","ma","ma.mp3","末","万"],["や","ヤ","ya","ya.mp3","也","耶"],["ら","ラ","ra","ra.mp3","良","羅"],["わ","ワ","wa","wa.mp3","和","倭"]],
-            [["い","イ","i","i.mp3","以","伊"],["き","キ","ki","ki.mp3","幾","企"],["し","シ","shi","shi.mp3","之","志"],["ち","チ","chi","chi.mp3","知","千"],["に","ニ","ni","ni.mp3","仁","尼"],["ひ","ヒ","hi","hi.mp3","比","卑"],["み","ミ","mi","mi.mp3","美","三"],["","","",""],["り","リ","ri","ri.mp3","利","里"],["","","",""]],
-            [["う","ウ","u","u.mp3","宇","右"],["く","ク","ku","ku.mp3","久","句"],["す","ス","su","su.mp3","須","寸"],["つ","ツ","tsu","tsu.mp3","川","津"],["ぬ","ヌ","nu","nu.mp3","奴","怒"],["ふ","フ","fu","fu.mp3","不","夫"],["む","ム","mu","mu.mp3","武","夢"],["ゆ","ユ","yu","yu.mp3","由","遊"],["る","ル","ru","ru.mp3","流","留"],["","","",""]],
-            [["え","エ","e","e.mp3","江","衣"],["け","ケ","ke","ke.mp3","計","介"],["せ","セ","se","se.mp3","世","勢"],["て","テ","te","te.mp3","天","丁"],["ね","ネ","ne","ne.mp3","祢","禰"],["へ","ヘ","he","he.mp3","部","戸"],["め","メ","me","me.mp3","女","米"],["","","",""],["れ","レ","re","re.mp3","礼","麗"],["","","",""]],
-            [["お","オ","o","o.mp3","於","雄"],["こ","コ","ko","ko.mp3","己","古"],["そ","ソ","so","so.mp3","曽","祖"],["と","ト","to","to.mp3","止","登"],["の","ノ","no","no.mp3","乃","能"],["ほ","ホ","ho","ho.mp3","保","穂"],["も","モ","mo","mo.mp3","毛","母"],["よ","ヨ","yo","yo.mp3","与","余"],["ろ","ロ","ro","ro.mp3","呂","路"],["を","ヲ","wo","wo.mp3","乎","遠"]],
-            [["ん","ン","n","n.mp3","无","恩"]]
-        ];
+    <div class="cg">
+      <label><b>語速（控制間距，不改變音長）：</b></label>
+      <input id="rate" type="range" min="0.6" max="3.0" step="0.1" value="1.2" oninput="document.getElementById('rv').innerText=this.value+'x'">
+      <span id="rv">1.2x</span>
+    </div>
 
-                const rowNames = ["あ段(A)", "い段(I)", "う段(U)", "え段(E)", "お段(O)", "撥音"], tbody = document.querySelector("#gTable tbody");
-        let playList = [], isLoop = false, idx = 0, gc = [], jpVoice = null, currentAudio = null;
+    <div class="cg">
+      <label><b>連讀朗誦：</b></label>
+      <select id="rep"><option value="1">一次</option><option value="2">兩次</option><option value="3">三次</option></select>
+    </div>
 
-        function getJpVoice() {
-            if (!window.speechSynthesis) return;
-            const voices = window.speechSynthesis.getVoices();
-            jpVoice = voices.find(v => (v.lang.includes('ja')) && (v.name.includes('Nanami') || v.name.includes('Kyoko') || v.name.includes('Natural') || v.name.includes('Google')));
-            if (!jpVoice) jpVoice = voices.find(v => v.lang.includes('ja'));
+    <div class="cg">
+      <label style="cursor:pointer"><input type="checkbox" id="originCheck"> 📜 顯示平假名字源</label>
+    </div>
+
+    <div class="cg">
+      <label style="cursor:pointer"><input type="checkbox" id="katakanaOriginCheck"> 🎴 顯示片假名字源</label>
+    </div>
+
+    <div class="cg">
+      <label style="cursor:pointer"><input type="checkbox" id="scrollCheck" checked> 🔽 自動跳轉</label>
+    </div>
+
+    <div style="flex-basis:100%;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <label style="font-weight:700">自動播放分類（可複選）：</label>
+      <label><input type="checkbox" class="catCheck" value="seion" checked> 清音</label>
+      <label><input type="checkbox" class="catCheck" value="dakuon"> 濁音/半濁音</label>
+      <label><input type="checkbox" class="catCheck" value="youon"> 拗音</label>
+    </div>
+  </div>
+
+  <!-- 清音 -->
+  <h2 id="gTableTitle">清音 (五十音)</h2>
+  <table id="gTable">
+    <thead>
+      <tr>
+        <th class="rh">段/行</th>
+        <th>あ行</th><th>か行</th><th>さ行</th><th>た行</th>
+        <th>な行</th><th>は行</th><th>ま行</th><th>や行</th><th>ら行</th><th>わ行</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- 濁音/半濁音 -->
+  <h2 id="dTableTitle">濁音 / 半濁音</h2>
+  <table id="dTable">
+    <thead>
+      <tr>
+        <th class="rh">段/行</th>
+        <th>が行</th><th>ざ行</th><th>だ行</th><th>ば行</th><th>ぱ行</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- 拗音 -->
+  <h2 id="yTableTitle">拗音</h2>
+  <table id="yTable">
+    <thead>
+      <tr>
+        <th class="rh">拗音</th>
+        <th>きゃ行</th><th>しゃ行</th><th>ちゃ行</th><th>にゃ行</th>
+        <th>ひゃ行</th><th>みゃ行</th><th>りゃ行</th><th>ぎゃ行</th><th>じゃ行</th>
+        <th>びゃ行</th><th>ぴゃ行</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+<script>
+/* ===========================
+   DATA (保持不變)
+   =========================== */
+const matrix = [
+  [["あ","ア","a","a.mp3","安","阿"],["か","カ","ka","ka.mp3","加","可"],["さ","サ","sa","sa.mp3","左","散"],["た","タ","ta","ta.mp3","太","多"],["な","ナ","na","na.mp3","奈","那"],["は","ハ","ha","ha.mp3","波","八"],["ま","マ","ma","ma.mp3","末","万"],["や","ヤ","ya","ya.mp3","也","耶"],["ら","ラ","ra","ra.mp3","良","羅"],["わ","ワ","wa","wa.mp3","和","倭"]],
+  [["い","イ","i","i.mp3","以","伊"],["き","キ","ki","ki.mp3","幾","企"],["し","シ","shi","shi.mp3","之","志"],["ち","チ","chi","chi.mp3","知","千"],["に","ニ","ni","ni.mp3","仁","尼"],["ひ","ヒ","hi","hi.mp3","比","卑"],["み","ミ","mi","mi.mp3","美","三"],["","","",""],["り","リ","ri","ri.mp3","利","里"],["","","",""]],
+  [["う","ウ","u","u.mp3","宇","右"],["く","ク","ku","ku.mp3","久","句"],["す","ス","su","su.mp3","須","寸"],["つ","ツ","tsu","tsu.mp3","川","津"],["ぬ","ヌ","nu","nu.mp3","奴","怒"],["ふ","フ","fu","fu.mp3","不","夫"],["む","ム","mu","mu.mp3","武","夢"],["ゆ","ユ","yu","yu.mp3","由","遊"],["る","ル","ru","ru.mp3","流","留"],["","","",""]],
+  [["え","エ","e","e.mp3","江","衣"],["け","ケ","ke","ke.mp3","計","介"],["せ","セ","se","se.mp3","世","勢"],["て","テ","te","te.mp3","天","丁"],["ね","ネ","ne","ne.mp3","祢","禰"],["へ","ヘ","he","he.mp3","部","戸"],["め","メ","me","me.mp3","女","米"],["","","",""],["れ","レ","re","re.mp3","礼","麗"],["","","",""]],
+  [["お","オ","o","o.mp3","於","雄"],["こ","コ","ko","ko.mp3","己","古"],["そ","ソ","so","so.mp3","曽","祖"],["と","ト","to","to.mp3","止","登"],["の","ノ","no","no.mp3","乃","能"],["ほ","ホ","ho","ho.mp3","保","穂"],["も","モ","mo","mo.mp3","毛","母"],["よ","ヨ","yo","yo.mp3","与","余"],["ろ","ロ","ro","ro.mp3","呂","路"],["を","ヲ","wo","wo.mp3","乎","遠"]],
+  [["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["ん","ン","n","n.mp3","无","恩"]]
+];
+
+const dakuon = [
+  [["が","ガ","ga","ga.mp3"],["ざ","ザ","za","za.mp3"],["だ","ダ","da","da.mp3"],["ば","バ","ba","ba.mp3"],["ぱ","パ","pa","pa.mp3"]],
+  [["ぎ","ギ","gi","gi.mp3"],["じ","ジ","ji","ji.mp3"],["ぢ","ヂ","ji","ji.mp3"],["び","ビ","bi","bi.mp3"],["ぴ","ピ","pi","pi.mp3"]],
+  [["ぐ","グ","gu","gu.mp3"],["ず","ズ","zu","zu.mp3"],["づ","ヅ","zu","zu.mp3"],["ぶ","ブ","bu","bu.mp3"],["ぷ","プ","pu","pu.mp3"]],
+  [["げ","ゲ","ge","ge.mp3"],["ぜ","ゼ","ze","ze.mp3"],["で","デ","de","de.mp3"],["べ","ベ","be","be.mp3"],["ぺ","ペ","pe","pe.mp3"]],
+  [["ご","ゴ","go","go.mp3"],["ぞ","ゾ","zo","zo.mp3"],["ど","ド","do","do.mp3"],["ぼ","ボ","bo","bo.mp3"],["ぽ","ポ","po","po.mp3"]]
+];
+
+const youon = [
+  [["きゃ","キャ","kya","kya.mp3"],["しゃ","シャ","sha","sha.mp3"],["ちゃ","チャ","cha","cha.mp3"],["にゃ","ニャ","nya","nya.mp3"],["ひゃ","ヒャ","hya","hya.mp3"],["みゃ","ミャ","mya","mya.mp3"],["りゃ","リャ","rya","rya.mp3"],["ぎゃ","ギャ","gya","gya.mp3"],["じゃ","ジャ","ja","ja.mp3"],["びゃ","ビャ","bya","bya.mp3"],["ぴゃ","ピャ","pya","pya.mp3"]],
+  [["きゅ","キュ","kyu","kyu.mp3"],["しゅ","シュ","shu","shu.mp3"],["ちゅ","チュ","chu","chu.mp3"],["にゅ","ニュ","nyu","nyu.mp3"],["ひゅ","ヒュ","hyu","hyu.mp3"],["みゅ","ミュ","myu","myu.mp3"],["りゅ","リュ","ryu","ryu.mp3"],["ぎゅ","ギュ","gyu","gyu.mp3"],["じゅ","ジュ","ju","ju.mp3"],["びゅ","ビュ","byu","byu.mp3"],["ぴゅ","ピュ","pyu","pyu.mp3"]],
+  [["きょ","キョ","kyo","kyo.mp3"],["しょ","ショ","sho","sho.mp3"],["ちょ","チョ","cho","cho.mp3"],["にょ","ニョ","nyo","nyo.mp3"],["ひょ","ヒョ","hyo","hyo.mp3"],["みょ","ミョ","myo","myo.mp3"],["りょ","リョ","ryo","ryo.mp3"],["ぎょ","ギョ","gyo","gyo.mp3"],["じょ","ジョ","jo","jo.mp3"],["びょ","ビョ","byo","byo.mp3"],["ぴょ","ピョ","pyo","pyo.mp3"]]
+];
+
+/* ===========================
+   TABLE BUILDING
+   =========================== */
+const rowNames = ["あ段(A)","い段(I)","う段(U)","え段(E)","お段(O)","撥音"];
+const dRowNames = ["あ段(A)","い段(I)","う段(U)","え段(E)","お段(O)"];
+const yRowNames = ["小あ段","小う段","小お段"];
+
+function getExpectedCols(tableId){
+  const ths = document.querySelectorAll(`#${tableId} thead tr th`);
+  return Math.max(0, ths.length - 1);
+}
+
+function buildTable(data, tableId, rowNames){
+  const tbody = document.querySelector(`#${tableId} tbody`);
+  tbody.innerHTML = "";
+  const cols = getExpectedCols(tableId);
+  for (let rIdx = 0; rIdx < data.length; rIdx++){
+    const rowData = data[rIdx] || [];
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td class="rh">${rowNames[rIdx] || ""}</td>`;
+    for (let c=0;c<cols;c++){
+      const cell = rowData[c] || null;
+      const td = document.createElement("td");
+      if (!cell || !cell[0]){
+        td.className = "empty";
+        td.innerHTML = "";
+      } else {
+        const id = `${tableId}-c-${rIdx}-${c}`;
+        td.className = "kana-cell";
+        td.id = id;
+        td.innerHTML = `<div class="cell-inner"><div class="p">${cell[0]}</div><div class="k">${cell[1]||""}</div><div class="r">${cell[2]||""}</div>${cell[4]?`<div class="o">${cell[4]}</div>`:""}${cell[5]?`<div class="ko">${cell[5]}</div>`:""}</div>`;
+        td.onclick = (ev) => { ev.stopPropagation(); playSingle(cell[0], cell[3], id); };
+      }
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+}
+
+// initial build
+buildTable(matrix,"gTable",rowNames);
+buildTable(dakuon,"dTable",dRowNames);
+buildTable(youon,"yTable",yRowNames);
+
+/* ===========================
+   UI toggles for 字源（確保作用於現有 DOM）
+   =========================== */
+document.getElementById("originCheck").addEventListener('change', function(){
+  const show = this.checked;
+  document.querySelectorAll(".o").forEach(e => e.style.display = show ? "block" : "none");
+});
+document.getElementById("katakanaOriginCheck").addEventListener('change', function(){
+  const show = this.checked;
+  document.querySelectorAll(".ko").forEach(e => e.style.display = show ? "block" : "none");
+});
+
+/* ===========================
+   PLAYBACK CORE
+   - 語速 slider 不改變音檔或 TTS 的播放速率
+   - 語速只控制「每個音之間的間距（gap）」
+   - TTS 使用固定語速（1.0），避免壓縮音長
+   =========================== */
+
+let playList = [], isLoop=false, idx=0;
+let jpVoice = null, currentAudio = null, ttsUtter = null;
+let categoryStarts = [], scrolledCategories = new Set();
+let manualPlayLock = false;
+
+function getJpVoice(){
+  if (!window.speechSynthesis) return;
+  const voices = window.speechSynthesis.getVoices();
+  jpVoice = voices.find(v=> v.lang && v.lang.startsWith("ja"));
+}
+if (window.speechSynthesis){ window.speechSynthesis.onvoiceschanged = getJpVoice; getJpVoice(); }
+
+function markSpeaking(id, on){
+  if (!id) return;
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (on) el.classList.add("speaking");
+  else el.classList.remove("speaking");
+}
+
+/* 單點播放 */
+async function playSingle(text, filename, id){
+  if (manualPlayLock) return;
+  manualPlayLock = true;
+  if (currentAudio){ try{ currentAudio.pause(); }catch(e){} currentAudio = null; }
+  if (ttsUtter && window.speechSynthesis){ try{ window.speechSynthesis.cancel(); }catch(e){} ttsUtter = null; }
+
+  markSpeaking(id, true);
+  try { await playSound(text, filename); } catch(e) {}
+  markSpeaking(id, false);
+  manualPlayLock = false;
+}
+
+/* playSound 回傳 Promise（MP3 優先，失敗 fallback TTS） */
+/* 注意：不改變 audio.playbackRate 或 TTS rate (固定 1.0)，
+   語速 slider 只影響 playNext 的間隔 (gap) */
+function playSound(text, filename){
+  return new Promise((resolve) => {
+    if (currentAudio){ try{ currentAudio.pause(); }catch(e){} currentAudio = null; }
+    if (ttsUtter && window.speechSynthesis){ try{ window.speechSynthesis.cancel(); }catch(e){} ttsUtter = null; }
+
+    let settled = false;
+    const finish = () => { if (settled) return; settled = true; document.getElementById('modeStatus').innerText = "🔊 就緒"; resolve(); };
+
+    function ttsFallback(){
+      if (settled) return;
+      if (!window.speechSynthesis){ finish(); return; }
+      ttsUtter = new SpeechSynthesisUtterance(text);
+      if (!jpVoice) getJpVoice();
+      if (jpVoice) ttsUtter.voice = jpVoice;
+      ttsUtter.lang = 'ja-JP';
+      ttsUtter.rate = 1.0; // 固定，不隨 slider 改變
+      ttsUtter.onstart = ()=> { document.getElementById('modeStatus').innerText = "🔊 TTS 朗讀"; };
+      ttsUtter.onend = ()=> { ttsUtter = null; finish(); };
+      ttsUtter.onerror = ()=> { ttsUtter = null; finish(); };
+      try{ window.speechSynthesis.speak(ttsUtter); }catch(e){ finish(); }
+    }
+
+    if (filename){
+      try {
+        const audio = new Audio(filename);
+        currentAudio = audio;
+        let handled = false;
+        audio.onplay = ()=> { document.getElementById('modeStatus').innerText = "🟢 播放本機 MP3"; };
+        audio.onended = ()=> { if (!handled){ handled = true; currentAudio = null; finish(); } };
+        audio.onerror = ()=> { if (!handled){ handled = true; currentAudio = null; ttsFallback(); } };
+        const p = audio.play();
+        if (p && typeof p.then === 'function') {
+          p.then(()=>{/* started */}).catch(()=> { if (!handled){ handled = true; currentAudio=null; ttsFallback(); } });
         }
-        if (window.speechSynthesis) { window.speechSynthesis.onvoiceschanged = getJpVoice; getJpVoice(); }
+      } catch(e){
+        currentAudio = null;
+        ttsFallback();
+      }
+    } else {
+      ttsFallback();
+    }
+  });
+}
 
-        matrix.forEach((rowData, rIdx) => {
-            const tr = document.createElement("tr"); tr.innerHTML = `<td class="rh">${rowNames[rIdx]}</td>`;
-            rowData.forEach((cell, cIdx) => {
-                const td = document.createElement("td");
-                if (cell.length === 0 || cell[0] === "") {
-                    td.className = "empty";
-                } else {
-                    const id = `c-${rIdx}-${cIdx}`;
-                    td.className = "kana-cell";
-                    td.id = id;
-                    td.innerHTML = `
-                        <div class="p">${cell[0]}</div>
-                        <div class="k">${cell[1]}</div>
-                        <div class="r">${cell[2]}</div>
-                        <div class="o">${cell[4]}</div>
-                        <div class="ko">${cell[5]}</div>
-                    `;
-                    td.onclick = () => { if(isLoop) stopAuto(); playSound(cell[0], cell[3]); };
-                }
-                tr.appendChild(td);
-            });
-            if (rIdx === 5) { 
-                for(let i=0; i<9; i++) { 
-                    let e=document.createElement("td"); 
-                    e.className="empty"; 
-                    tr.appendChild(e); 
-                } 
-            }
-            tbody.appendChild(tr);
-        });
+/* 建立播放清單（tableId 用於 id 一致性） */
+function buildPlayList(categories, mode){
+  playList = []; categoryStarts = []; scrolledCategories = new Set();
+  const order = ["seion","dakuon","youon"];
+  order.forEach(cat=>{
+    if (!categories.includes(cat)) return;
+    const startIndex = playList.length;
+    categoryStarts.push({category:cat,index:startIndex});
+    let source = (cat==="seion")?matrix:(cat==="dakuon"?dakuon:youon);
+    const tableId = (cat==="seion") ? "gTable" : (cat==="dakuon") ? "dTable" : "yTable";
 
-        // 控制字源顯示開關
-        document.getElementById("originCheck").onchange = function() {
-            const show = this.checked;
-            document.querySelectorAll(".o").forEach(e => {
-                e.style.display = show ? "block" : "none";
-            });
-        };
-        document.getElementById("katakanaOriginCheck").onchange = function() {
-            const show = this.checked;
-            document.querySelectorAll(".ko").forEach(e => {
-                e.style.display = show ? "block" : "none";
-            });
-        };
-        
-        // 🔽 初始化：一開始不顯示字源
-        window.onload = function() {
-        // 平假名字源預設不顯示
-        document.getElementById("originCheck").checked = false;
-        document.querySelectorAll(".o").forEach(e => {
-            e.style.display = "none";
-            });
-
-        // 片假名字源預設不顯示
-        document.getElementById("katakanaOriginCheck").checked = false;
-        document.querySelectorAll(".ko").forEach(e => {
-            e.style.display = "none";
-            });
-        };
-
-        function buildPlayList(mode) {
-            playList = [];
-            if (mode === 'v') {
-                for (let col = 0; col < 10; col++) {
-                    for (let row = 0; row < 5; row++) { 
-                        if (matrix[row][col][0] !== "") 
-                            playList.push({ id: `c-${row}-${col}`, t: matrix[row][col][0], file: matrix[row][col][3] }); 
-                    }
-                }
-            } else {
-                for (let row = 0; row < 5; row++) {
-                    for (let col = 0; col < 10; col++) { 
-                        if (matrix[row][col][0] !== "") 
-                            playList.push({ id: `c-${row}-${col}`, t: matrix[row][col][0], file: matrix[row][col][3] }); 
-                    }
-                }
-            }
-            playList.push({ id: "c-5-0", t: "ん", file: "n.mp3" });
+    if (mode === 'v'){
+      const cols = getExpectedCols(tableId);
+      for (let col=0; col<cols; col++){
+        for (let row=0; row<source.length; row++){
+          const cell = (source[row] && source[row][col]) ? source[row][col] : null;
+          if (cell && cell[0]) playList.push({tableId,category:cat,id:`${tableId}-c-${row}-${col}`,t:cell[0],file:cell[3]});
         }
-
-        function playSound(text, filename, callback) {
-            if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-            if (window.speechSynthesis) window.speechSynthesis.cancel();
-
-            currentAudio = new Audio(filename);
-            currentAudio.onplay = () => {
-                document.getElementById('modeStatus').innerText = "🟢 目前正在播放：本機高音質真人 MP3 原音";
-                document.getElementById('modeStatus').style.color = "#2ecc71";
-            };
-            if (callback) currentAudio.onended = callback;
-
-            currentAudio.play().catch(err => {
-                document.getElementById('modeStatus').innerText = "⚠️ 未偵測到本機音檔，已啟用系統相容語音發聲";
-                document.getElementById('modeStatus').style.color = "#f39c12";
-                if (window.speechSynthesis.paused) window.speechSynthesis.resume();
-                const u = new SpeechSynthesisUtterance(text);
-                if (!jpVoice) getJpVoice();
-                if (jpVoice) u.voice = jpVoice;
-                u.lang = 'ja-JP'; u.rate = 1.0;
-                if (callback) { u.onend = callback; u.onerror = callback; }
-                gc.push(u);
-                window.speechSynthesis.speak(u);
-            });
+      }
+    } else {
+      for (let row=0; row<source.length; row++){
+        const cols = source[row] ? source[row].length : 0;
+        for (let col=0; col<cols; col++){
+          const cell = source[row][col];
+          if (cell && cell[0]) playList.push({tableId,category:cat,id:`${tableId}-c-${row}-${col}`,t:cell[0],file:cell[3]});
         }
+      }
+    }
+  });
 
-        function startAuto(mode) {
-            if (isLoop) stopAuto();
-            isLoop = true; idx = 0;
-            buildPlayList(mode);
-            document.getElementById('vBtn').disabled = true;
-            document.getElementById('hBtn').disabled = true;
-            playNext();
-        }
+  // 把「ん」移到最後
+  const nItems = [], others = [];
+  playList.forEach(item => {
+    if (item.t === "ん" || item.t === "ン") nItems.push(item);
+    else others.push(item);
+  });
+  playList = others.concat(nItems);
+}
 
-        function playNext() {
-            if (!isLoop) return;
-            if (idx >= playList.length) { 
-                if (document.getElementById('loopCheck').checked) { idx = 0; } 
-                else { stopAuto(); return; }
-            }
-            document.querySelectorAll('.kana-cell').forEach(e => e.classList.remove('speaking'));
-            let cur = playList[idx], cell = document.getElementById(cur.id);
-            if (cell) { 
-                cell.classList.add('speaking'); 
-                if (document.getElementById('scrollCheck')?.checked) {
-                    cell.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }
-            let rep = parseInt(document.getElementById('rep').value), cnt = 0, sf = parseFloat(document.getElementById('rate').value);
-            
-            function loop() {
-                if (!isLoop) return;
-                if (cnt >= rep) { idx++; setTimeout(playNext, 450 / sf); return; } 
-                playSound(cur.t, cur.file, () => { cnt++; gc = []; setTimeout(loop, 200 / sf); }); 
-            }
-            loop();
-        }
+/* 啟動自動播放 */
+function startAuto(mode){
+  if (isLoop) stopAuto();
+  isLoop = true; idx = 0;
+  const categories = Array.from(document.querySelectorAll(".catCheck:checked")).map(c=>c.value);
+  if (categories.length === 0){ alert("請至少選擇一個分類"); isLoop=false; return; }
+  buildPlayList(categories, mode);
 
-        function stopAuto() { 
-            isLoop = false; gc = []; 
-            if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-            if (window.speechSynthesis) window.speechSynthesis.cancel(); 
-            document.querySelectorAll('.kana-cell').forEach(e => e.classList.remove('speaking')); 
-            document.getElementById('vBtn').disabled = false;
-            document.getElementById('hBtn').disabled = false;
-        }
-    </script>
+  if (document.getElementById('scrollCheck')?.checked && categoryStarts.length>0){
+    const first = categoryStarts[0].category;
+    const tableId = first==="seion"?"gTable":first==="dakuon"?"dTable":"yTable";
+    document.getElementById(tableId)?.scrollIntoView({behavior:'smooth',block:'start'});
+    scrolledCategories.add(first);
+  }
+
+  document.getElementById('vBtn').disabled = true;
+  document.getElementById('hBtn').disabled = true;
+  playNext();
+}
+
+/* 自動播放下一個
+   語速 slider 僅控制 gap（間距），不改變音檔或 TTS 的播放速率 */
+async function playNext(){
+  if (!isLoop) return;
+  if (idx >= playList.length){
+    if (document.getElementById('loopCheck').checked){ idx = 0; scrolledCategories.clear(); }
+    else { stopAuto(); return; }
+  }
+
+  for (const cs of categoryStarts){
+    if (cs.index === idx && !scrolledCategories.has(cs.category) && document.getElementById('scrollCheck')?.checked){
+      const tableId = cs.category==="seion"?"gTable":cs.category==="dakuon"?"dTable":"yTable";
+      document.getElementById(tableId)?.scrollIntoView({behavior:'smooth',block:'start'});
+      scrolledCategories.add(cs.category);
+      break;
+    }
+  }
+
+  // clear previous speaking
+  document.querySelectorAll('.kana-cell.speaking').forEach(e=> e.classList.remove('speaking'));
+
+  const cur = playList[idx];
+  if (!cur){ idx++; setTimeout(playNext,100); return; }
+
+  // highlight immediately
+  markSpeaking(cur.id, true);
+
+  const rep = parseInt(document.getElementById('rep').value) || 1;
+  const speedSlider = parseFloat(document.getElementById('rate').value) || 1.2;
+  // base gap in ms between plays; higher slider -> shorter gap
+  const baseGap = 180; // ms
+  const gap = Math.max(40, Math.round(baseGap / speedSlider)); // lower bound to avoid zero gap
+
+  for (let cnt=0; cnt<rep; cnt++){
+    if (!isLoop) break;
+    markSpeaking(cur.id, true);
+    await playSound(cur.t, cur.file); // playSound does not change audio/TTS rate
+    await new Promise(res => setTimeout(res, gap));
+  }
+
+  // remove highlight and advance
+  markSpeaking(cur.id, false);
+  idx++;
+  setTimeout(playNext, 80);
+}
+
+/* 停止 */
+function stopAuto(){
+  isLoop = false;
+  if (currentAudio){ try{ currentAudio.pause(); }catch(e){} currentAudio=null; }
+  if (ttsUtter && window.speechSynthesis){ try{ window.speechSynthesis.cancel(); }catch(e){} ttsUtter=null; }
+  document.querySelectorAll('.kana-cell.speaking').forEach(e=> e.classList.remove('speaking'));
+  document.getElementById('vBtn').disabled = false;
+  document.getElementById('hBtn').disabled = false;
+  document.getElementById('modeStatus').innerText = "🔊 就緒";
+  manualPlayLock = false;
+}
+
+/* refresh helper (若你動態改資料可呼叫) */
+function refreshTables(){
+  buildTable(matrix,"gTable",rowNames);
+  buildTable(dakuon,"dTable",dRowNames);
+  buildTable(youon,"yTable",yRowNames);
+}
+
+/* init */
+getJpVoice();
+</script>
 </body>
 </html>
