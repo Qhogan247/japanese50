@@ -5,9 +5,17 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>JP 本機離線真人日文 104 音表</title>
 <style>
-  :root{--rh-px:120px}
+  :root{
+    --rh-px:120px;
+    --cell-padding:12px;
+    --p-size:20px;
+    --k-size:13px;
+    --r-size:11px;
+    --floating-size:52px;
+    --floating-gap:12px;
+  }
   *{box-sizing:border-box}
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:#f8f9fa;color:#333;max-width:980px;margin:0 auto;padding:18px}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:#f8f9fa;color:#333;max-width:980px;margin:0 auto;padding:18px 18px 110px} /* bottom padding to avoid overlap */
   h1{text-align:center;color:#2c3e50;margin:6px 0}
   .mode-tip{text-align:center;font-size:14px;color:#2ecc71;margin-bottom:12px;font-weight:600}
   .controls{background:#fff;border:1px solid #e6e9ee;border-radius:10px;padding:12px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
@@ -19,17 +27,28 @@
   table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.04);margin-bottom:14px;table-layout:fixed}
   thead th{background:#34495e;color:#fff;padding:10px 6px;font-weight:700}
   th,td{border:1px solid #eef2f5;padding:12px 8px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .rh{background:#f1f2f6;font-weight:700;color:#2c3e50;width:var(--rh-px);min-width:var(--rh-px);max-width:var(--rh-px)}
-  #gTable th:not(.rh), #gTable td:not(.rh){width:calc((100% - var(--rh-px))/10);min-width:0}
-  #dTable th:not(.rh), #dTable td:not(.rh){width:calc((100% - var(--rh-px))/5);min-width:0}
-  #yTable th:not(.rh), #yTable td:not(.rh){width:calc((100% - var(--rh-px))/11);min-width:0}
+  .rh{
+    background:#f1f2f6;
+    font-weight:700;
+    color:#2c3e50;
+    width:var(--rh-px);
+    min-width:48px;
+    max-width:var(--rh-px);
+    box-sizing:border-box;
+  }
+  #gTable th:not(.rh), #gTable td:not(.rh),
+  #dTable th:not(.rh), #dTable td:not(.rh),
+  #yTable th:not(.rh), #yTable td:not(.rh){
+    width: calc((100% - var(--rh-px)) / 10);
+    min-width: 0;
+  }
 
   .kana-cell{cursor:pointer;background:#fff;transition:background .12s;padding:0;min-width:0}
-  .kana-cell .cell-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:12px 8px}
+  .kana-cell .cell-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:var(--cell-padding) 8px}
   .kana-cell:hover{background:#fff3bf}
-  .p{font-size:20px;font-weight:800;color:#2c3e50;line-height:1;margin:0}
-  .k{font-size:13px;color:#7f8c8d;margin:0}
-  .r{font-size:11px;color:#95a5a6;margin:0}
+  .p{font-size:var(--p-size);font-weight:800;color:#2c3e50;line-height:1;margin:0}
+  .k{font-size:var(--k-size);color:#7f8c8d;margin:0}
+  .r{font-size:var(--r-size);color:#95a5a6;margin:0}
   .o{font-size:11px;color:#8e44ad;display:none}
   .ko{font-size:11px;color:#d35400;display:none}
   .speaking{background:#2d9cdb!important}
@@ -42,15 +61,25 @@
     right: 14px;
     bottom: 14px;
     display: flex;
-    gap: 10px;
+    gap: var(--floating-gap);
     z-index: 99999;
     align-items: center;
     pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease, visibility .18s;
+    opacity: 0;
+    transform: translateY(6px) scale(.98);
+    visibility: hidden;
+  }
+  .floating-group.visible{
+    opacity: 0.95;
+    transform: translateY(0) scale(1);
+    visibility: visible;
+    pointer-events: auto;
   }
   .floating-btn{
     pointer-events: auto;
-    width: 52px;
-    height: 52px;
+    width: var(--floating-size);
+    height: var(--floating-size);
     border-radius: 50%;
     background: rgba(45,156,219,0.88);
     color: #fff;
@@ -61,33 +90,53 @@
     border: none;
     outline: none;
     transition: transform .14s ease, opacity .14s ease;
-    opacity: 0.5;               /* 初始半透明 50% */
+    opacity: 0.95;
     transform: translateY(0) scale(1);
     backdrop-filter: blur(6px);
     font-weight:700;
   }
-  .floating-btn.show{ opacity: 0.95; transform: translateY(0) scale(1); }
   .floating-btn:focus{ box-shadow: 0 0 0 4px rgba(45,156,219,0.18); }
   .floating-btn:hover{ transform: translateY(-3px) scale(1.02); }
   #scrollTopBtn{ background: rgba(45,156,219,0.85); }
   #pauseBtn{ background: rgba(231,76,60,0.92); }
   #resumeBtn{ background: rgba(46,204,113,0.92); }
 
+  /* small screens */
+  @media (max-width: 900px){
+    :root{
+      --rh-px:88px;
+      --cell-padding:10px;
+      --p-size:18px;
+      --k-size:12px;
+      --r-size:11px;
+    }
+  }
+
   @media (max-width: 600px){
-    :root{ --rh-px:56px; } /* 手機縮小段/行欄位 */
-    .p{font-size:18px}
-    .k{font-size:12px}
-    .r{font-size:11px}
-    .kana-cell .cell-inner{padding:10px 6px}
-    table{font-size:13px}
+    :root{
+      --rh-px:56px;
+      --cell-padding:8px;
+      --p-size:16px;
+      --k-size:11px;
+      --r-size:10px;
+      --floating-size:48px;
+    }
+    th, td { white-space: normal; word-break: keep-all; padding:8px 6px; }
+    .kana-cell .cell-inner{ gap:4px; padding:8px 6px; }
   }
 
   @media (max-width: 420px){
-    :root{ --rh-px:48px; }
-    .p{font-size:16px}
-    .k{font-size:11px}
-    .r{font-size:10px}
+    :root{
+      --rh-px:48px;
+      --p-size:15px;
+      --k-size:10px;
+      --r-size:9px;
+      --floating-size:44px;
+    }
   }
+
+  /* spacer to ensure last table not covered (in case body padding insufficient) */
+  .bottom-spacer{ height: calc(var(--floating-size) + var(--floating-gap) + 12px); width:100%; }
 </style>
 </head>
 <body>
@@ -136,7 +185,6 @@
     </div>
   </div>
 
-  <!-- 表格：資料與建表程式碼在下方 JS 會填入 -->
   <h2 id="gTableTitle">清音</h2>
   <table id="gTable">
     <thead>
@@ -173,14 +221,19 @@
     <tbody></tbody>
   </table>
 
-  <div class="floating-group" aria-hidden="false">
+  <div class="floating-group" id="floatingGroup" aria-hidden="false">
     <button id="scrollTopBtn" class="floating-btn" aria-label="回到頁首" title="回到頁首">↑</button>
     <button id="pauseBtn" class="floating-btn" aria-label="暫停朗讀" title="暫停朗讀">⏸</button>
     <button id="resumeBtn" class="floating-btn" aria-label="繼續朗讀" title="繼續朗讀">▶</button>
   </div>
 
+  <!-- spacer to ensure last table not covered by floating buttons -->
+  <div class="bottom-spacer" aria-hidden="true"></div>
+
 <script>
-/* ===== 資料陣列（與你最初版本相同） ===== */
+/* ===========================
+   DATA
+   =========================== */
 const matrix = [
   [["あ","ア","a","a.mp3","安","阿"],["か","カ","ka","ka.mp3","加","可"],["さ","サ","sa","sa.mp3","左","散"],["た","タ","ta","ta.mp3","太","多"],["な","ナ","na","na.mp3","奈","那"],["は","ハ","ha","ha.mp3","波","八"],["ま","マ","ma","ma.mp3","末","万"],["や","ヤ","ya","ya.mp3","也","耶"],["ら","ラ","ra","ra.mp3","良","羅"],["わ","ワ","wa","wa.mp3","和","倭"]],
   [["い","イ","i","i.mp3","以","伊"],["き","キ","ki","ki.mp3","幾","企"],["し","シ","shi","shi.mp3","之","志"],["ち","チ","chi","chi.mp3","知","千"],["に","ニ","ni","ni.mp3","仁","尼"],["ひ","ヒ","hi","hi.mp3","比","卑"],["み","ミ","mi","mi.mp3","美","三"],["","","",""],["り","リ","ri","ri.mp3","利","里"],["","","",""]],
@@ -204,7 +257,7 @@ const youon = [
   [["きょ","キョ","kyo","kyo.mp3"],["しょ","ショ","sho","sho.mp3"],["ちょ","チョ","cho","cho.mp3"],["にょ","ニョ","nyo","nyo.mp3"],["ひょ","ヒョ","hyo","hyo.mp3"],["みょ","ミョ","myo","myo.mp3"],["りょ","リョ","ryo","ryo.mp3"],["ぎょ","ギョ","gyo","gyo.mp3"],["じょ","ジョ","jo","jo.mp3"],["びょ","ビョ","byo","byo.mp3"],["ぴょ","ピョ","pyo","pyo.mp3"]]
 ];
 
-/* ===== 建表 ===== */
+/* ===== TABLE BUILDING ===== */
 const rowNames = ["あ段(A)","い段(I)","う段(U)","え段(E)","お段(O)","撥音"];
 const dRowNames = ["あ段(A)","い段(I)","う段(U)","え段(E)","お段(O)"];
 const yRowNames = ["小あ段","小う段","小お段"];
@@ -245,11 +298,11 @@ buildTable(matrix,"gTable",rowNames);
 buildTable(dakuon,"dTable",dRowNames);
 buildTable(youon,"yTable",yRowNames);
 
-/* ===== 播放核心（保留原始行為，加入安全暫停/繼續） ===== */
+/* ===== PLAYBACK CORE ===== */
 let playList = [], isLoop=false, idx=0;
 let jpVoice = null;
-let currentAudio = null;          // 正在播放的 audio element（若為 MP3）
-let pausedAudio = null;           // 暫停時保留的 audio element（不銷毀）
+let currentAudio = null;
+let pausedAudio = null;
 let ttsUtter = null;
 let categoryStarts = [], scrolledCategories = new Set();
 let manualPlayLock = false;
@@ -274,27 +327,39 @@ function markSpeaking(id, on){
   else el.classList.remove("speaking");
 }
 
-/* 單點播放（保留原始行為） */
+/* helper: extract filename from src */
+function getFilenameFromSrc(src){
+  try {
+    return src.split('/').pop().split('?')[0];
+  } catch(e){
+    return src || "";
+  }
+}
+
+/* 單點播放 */
 async function playSingle(text, filename, id){
   if (manualPlayLock) return;
   manualPlayLock = true;
-  // stop any current audio/tts
-  if (currentAudio){ try{ currentAudio.pause(); }catch(e){} currentAudio = null; }
-  if (ttsUtter && window.speechSynthesis){ try{ window.speechSynthesis.cancel(); }catch(e){} ttsUtter = null; }
+
+  if (currentAudio && currentAudio !== pausedAudio){
+    try { currentAudio.pause(); } catch(e){}
+    currentAudio = null;
+  }
+  if (ttsUtter && window.speechSynthesis && !window.isPaused){
+    try { window.speechSynthesis.cancel(); } catch(e){}
+    ttsUtter = null;
+  }
 
   markSpeaking(id, true);
-  try { await playSound(text, filename); } catch(e) {}
+  try { await playSound(text, filename); } catch(e){ console.error(e); }
   markSpeaking(id, false);
   manualPlayLock = false;
 }
 
-/* playSound: MP3 優先，失敗 fallback TTS */
+/* playSound: MP3 優先，穩健處理 pausedAudio 與 TTS fallback */
 function playSound(text, filename){
   return new Promise((resolve) => {
-    // stop previous audio reference only if it's not the pausedAudio we want to resume later
     if (currentAudio && currentAudio !== pausedAudio){ try{ currentAudio.pause(); }catch(e){} currentAudio = null; }
-
-    // cancel TTS only when not paused
     if (ttsUtter && window.speechSynthesis && window.speechSynthesis.speaking && !window.isPaused){
       try{ window.speechSynthesis.cancel(); }catch(e){}
       ttsUtter = null;
@@ -317,21 +382,33 @@ function playSound(text, filename){
       try{ window.speechSynthesis.speak(ttsUtter); }catch(e){ finish(); }
     }
 
+    // 如果 pausedAudio 與 filename 相符，嘗試重用（並嘗試 play）
+    if (pausedAudio && filename && getFilenameFromSrc(pausedAudio.src) === filename){
+      currentAudio = pausedAudio;
+      pausedAudio = null;
+      let handled = false;
+      currentAudio.onplay = ()=> { document.getElementById('modeStatus').innerText = "🟢 播放本機 MP3"; };
+      currentAudio.onended = ()=> { if (!handled){ handled = true; currentAudio = null; finish(); } };
+      currentAudio.onerror = ()=> { if (!handled){ handled = true; currentAudio = null; ttsFallback(); } };
+      const p = currentAudio.play();
+      if (p && typeof p.then === 'function'){
+        p.then(()=>{/* started */}).catch(()=>{ ttsFallback(); });
+      }
+      return;
+    }
+
+    // 建立新 audio 並播放（通常由使用者互動觸發）
     if (filename){
       try {
         const audio = new Audio(filename);
+        audio.preload = 'auto';
         currentAudio = audio;
-        // if we are resuming from a pausedAudio that matches this file, keep reference
-        if (pausedAudio && pausedAudio.src === audio.src){
-          // use pausedAudio instead
-          audio.pause();
-        }
         let handled = false;
         audio.onplay = ()=> { document.getElementById('modeStatus').innerText = "🟢 播放本機 MP3"; };
         audio.onended = ()=> { if (!handled){ handled = true; currentAudio = null; finish(); } };
         audio.onerror = ()=> { if (!handled){ handled = true; currentAudio = null; ttsFallback(); } };
         const p = audio.play();
-        if (p && typeof p.then === 'function') {
+        if (p && typeof p.then === 'function'){
           p.then(()=>{/* started */}).catch(()=> { if (!handled){ handled = true; currentAudio=null; ttsFallback(); } });
         }
       } catch(e){
@@ -344,23 +421,18 @@ function playSound(text, filename){
   });
 }
 
-/* resume stored audio if paused for this idx (use same audio element) */
+/* resumeStoredAudioIfAny: 準備元素與事件，不在此自動 play */
 function resumeStoredAudioIfAny(){
   return new Promise((resolve) => {
     const ps = window._pauseState;
     if (pausedAudio && ps.pausedIndex === idx){
-      // resume the same audio element (user click will call play)
       currentAudio = pausedAudio;
       pausedAudio = null;
-      // attach end handler to resolve when ends
       let handled = false;
       currentAudio.onended = ()=> { if (!handled){ handled = true; currentAudio = null; ps.audioSrc = null; ps.audioTime = 0; ps.pausedIndex = null; resolve(); } };
       currentAudio.onerror = ()=> { if (!handled){ handled = true; currentAudio = null; ps.audioSrc = null; ps.audioTime = 0; ps.pausedIndex = null; resolve(); } };
-      // try to play (should be triggered by user gesture on resume button)
-      // but if resumeStoredAudioIfAny is called from playNext (non-interactive), we do not auto-play here.
       resolve();
     } else if (ps.ttsPaused && window.speechSynthesis){
-      try { window.speechSynthesis.resume(); ps.ttsPaused = false; } catch(e){}
       resolve();
     } else {
       resolve();
@@ -378,8 +450,6 @@ function buildPlayList(categories, mode){
     categoryStarts.push({category:cat,index:startIndex});
     let source = (cat==="seion")?matrix:(cat==="dakuon"?dakuon:youon);
     const tableId = (cat==="seion") ? "gTable" : (cat==="dakuon") ? "dTable" : "yTable";
-
-    if (window._pauseState.lastMode === undefined) window._pauseState.lastMode = mode || 'v';
 
     if (mode === 'v'){
       const cols = getExpectedCols(tableId);
@@ -409,11 +479,10 @@ function buildPlayList(categories, mode){
   playList = others.concat(nItems);
 }
 
-/* startAuto: must be triggered by user click (vBtn/hBtn) */
+/* startAuto */
 function startAuto(mode){
   window._pauseState.lastMode = mode || window._pauseState.lastMode || 'v';
 
-  // clear residual timers and audio only if not paused
   if (playNextTimer){ clearTimeout(playNextTimer); playNextTimer = null; }
   if (currentAudio && !window.isPaused){ try{ currentAudio.pause(); }catch(e){} currentAudio = null; }
   if (ttsUtter && window.speechSynthesis && !window.isPaused){ try{ window.speechSynthesis.cancel(); }catch(e){} ttsUtter = null; }
@@ -437,7 +506,7 @@ function startAuto(mode){
   playNext();
 }
 
-/* playNext with guard to avoid overlapping */
+/* playNext with guard and pause handling */
 async function playNext(){
   if (playNextRunning) return;
   playNextRunning = true;
@@ -474,10 +543,9 @@ async function playNext(){
       if (!isLoop) break;
       markSpeaking(cur.id, true);
 
-      // If paused state stored this idx and pausedAudio exists, we do NOT auto-play it here.
-      // We rely on user to press resume (user gesture) to actually call pausedAudio.play() or speechSynthesis.resume().
       if (window._pauseState.pausedIndex === idx && (pausedAudio || window._pauseState.ttsPaused)){
-        // wait until user resumes; break loop to avoid auto-advancing
+        markSpeaking(cur.id, false);
+        document.getElementById('modeStatus').innerText = "⏸ 等待使用者恢復播放";
         playNextRunning = false;
         return;
       } else {
@@ -517,10 +585,10 @@ function stopAuto(){
   window._pauseState.ttsPaused = false;
   window._pauseState.prevIsLoop = false;
   window._pauseState.pausedIndex = null;
-  pausedAudio = null;
+  if (pausedAudio){ try{ pausedAudio.pause(); }catch(e){} pausedAudio = null; }
 }
 
-/* pause: store current audio element and time; do NOT destroy audio element */
+/* pausePlaybackKeepPosition */
 function pausePlaybackKeepPosition(){
   if (window.isPaused) return;
   window.isPaused = true;
@@ -535,7 +603,6 @@ function pausePlaybackKeepPosition(){
       window._pauseState.audioSrc = currentAudio.src || null;
       window._pauseState.audioTime = currentAudio.currentTime || 0;
       window._pauseState.pausedIndex = idx;
-      // keep the audio element so resume can call play() on it (user gesture)
       pausedAudio = currentAudio;
       try { currentAudio.pause(); } catch(e){}
       currentAudio = null;
@@ -564,30 +631,25 @@ function pausePlaybackKeepPosition(){
   document.getElementById('modeStatus').innerText = "⏸ 已暫停";
 }
 
-/* resume: must be called from user click (resume button) to satisfy mobile autoplay policy */
+/* resumePlaybackFromPosition (must be called from user click) */
 function resumePlaybackFromPosition(){
   if (!window.isPaused) return;
   window.isPaused = false;
   window.isLoop = !!window._pauseState.prevIsLoop || true;
   document.getElementById('modeStatus').innerText = "▶ 繼續播放";
 
-  // If we have a pausedAudio element, resume it directly (user gesture)
   if (pausedAudio){
     try {
-      // restore time (safety)
       const t = Math.min(window._pauseState.audioTime || 0, pausedAudio.duration || window._pauseState.audioTime || 0);
       if (!isNaN(t) && isFinite(t)) {
         try { pausedAudio.currentTime = t; } catch(e){}
       }
     } catch(e){}
-    // play must be triggered by user click (this function is called from resume button click)
     pausedAudio.play().then(()=> {
       currentAudio = pausedAudio;
       pausedAudio = null;
-      // after resumed audio ends, continue auto flow
       currentAudio.onended = ()=> { currentAudio = null; setTimeout(()=> { if (!playNextRunning) playNext(); }, 80); };
     }).catch(()=> {
-      // if play rejected, fallback: start playNext flow (user may need to interact)
       setTimeout(()=> { if (!playNextRunning) playNext(); }, 120);
     });
     window._pauseState.audioSrc = null;
@@ -596,26 +658,57 @@ function resumePlaybackFromPosition(){
     return;
   }
 
-  // If TTS was paused, resume it (user gesture)
   if (window._pauseState.ttsPaused && window.speechSynthesis){
     try { window.speechSynthesis.resume(); window._pauseState.ttsPaused = false; } catch(e){}
-    // let playNext continue after a short delay
     setTimeout(()=> { if (!playNextRunning) playNext(); }, 120);
     return;
   }
 
-  // Otherwise, simply call playNext to continue automatic flow
   setTimeout(()=> { if (!playNextRunning) playNext(); }, 120);
 }
 
-/* ===== UI 綁定（確保在 DOMContentLoaded） ===== */
+/* unlock audio on first gesture (safety) */
+function unlockAudioOnFirstGesture(){
+  function unlock(){
+    try {
+      const a = new Audio();
+      a.src = "data:audio/mp3;base64,//uQZAAAAAAAAAAAAAAAAAAAA";
+      a.play().then(()=>{ a.pause(); a.src = ""; }).catch(()=>{});
+    } catch(e){}
+    window.removeEventListener('touchstart', unlock, {passive:true});
+    window.removeEventListener('click', unlock);
+  }
+  window.addEventListener('touchstart', unlock, {passive:true});
+  window.addEventListener('click', unlock);
+}
+unlockAudioOnFirstGesture();
+
+/* ===========================
+   UI bindings & floating button behavior
+   =========================== */
 document.addEventListener('DOMContentLoaded', () => {
   const scrollBtn = document.getElementById('scrollTopBtn');
   const pauseBtn = document.getElementById('pauseBtn');
   const resumeBtn = document.getElementById('resumeBtn');
+  const floatingGroup = document.getElementById('floatingGroup');
 
-  // 顯示 floating 按鈕
-  [scrollBtn, pauseBtn, resumeBtn].forEach(b => b && b.classList.add('show'));
+  // show/hide floating group based on scroll position
+  function updateFloatingVisibility(){
+    // show when user scrolled away from top ( > 20px ), hide when near top
+    if (window.scrollY > 20){
+      floatingGroup.classList.add('visible');
+    } else {
+      floatingGroup.classList.remove('visible');
+    }
+  }
+  // initial state
+  updateFloatingVisibility();
+  // update on scroll and on resize
+  window.addEventListener('scroll', updateFloatingVisibility, {passive:true});
+  window.addEventListener('resize', updateFloatingVisibility);
+
+  // show floating buttons with slight delay to avoid flash
+  setTimeout(()=> updateFloatingVisibility(), 120);
 
   scrollBtn?.addEventListener('click', ()=> {
     try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch(e){ window.scrollTo(0,0); }
@@ -647,7 +740,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll(".ko").forEach(e => e.style.display = show ? "block" : "none");
   });
 
-  // ensure scrollCheck default checked
   const sc = document.getElementById('scrollCheck');
   if (sc) sc.checked = true;
 });
