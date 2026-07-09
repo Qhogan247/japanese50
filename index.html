@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>JP 本機離線真人日文 104 音表</title>
+<title>JP 本機離線真人日文 104 音表 — 暫停/繼續已移除</title>
 <style>
   :root{
     --rh-px:120px;
@@ -15,7 +15,7 @@
     --floating-gap:12px;
   }
   *{box-sizing:border-box}
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:#f8f9fa;color:#333;max-width:980px;margin:0 auto;padding:18px 18px 110px} /* bottom padding to avoid overlap */
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:#f8f9fa;color:#333;max-width:980px;margin:0 auto;padding:18px 18px 110px}
   h1{text-align:center;color:#2c3e50;margin:6px 0}
   .mode-tip{text-align:center;font-size:14px;color:#2ecc71;margin-bottom:12px;font-weight:600}
   .controls{background:#fff;border:1px solid #e6e9ee;border-radius:10px;padding:12px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
@@ -85,7 +85,7 @@
     color: #fff;
     display: grid;
     place-items: center;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    box-shadow: 0 6px 18px rgba(0,0,0,.18);
     cursor: pointer;
     border: none;
     outline: none;
@@ -98,8 +98,8 @@
   .floating-btn:focus{ box-shadow: 0 0 0 4px rgba(45,156,219,0.18); }
   .floating-btn:hover{ transform: translateY(-3px) scale(1.02); }
   #scrollTopBtn{ background: rgba(45,156,219,0.85); }
-  #pauseBtn{ background: rgba(231,76,60,0.92); }
-  #resumeBtn{ background: rgba(46,204,113,0.92); }
+  /* hide pause/resume buttons visually since functionality removed */
+  #pauseBtn, #resumeBtn { display: none; }
 
   /* small screens */
   @media (max-width: 900px){
@@ -227,13 +227,12 @@
     <button id="resumeBtn" class="floating-btn" aria-label="繼續朗讀" title="繼續朗讀">▶</button>
   </div>
 
-  <!-- spacer to ensure last table not covered by floating buttons -->
   <div class="bottom-spacer" aria-hidden="true"></div>
 
 <script>
 /* ===========================
    DATA
-   =========================== */
+   ============================ */
 const matrix = [
   [["あ","ア","a","a.mp3","安","阿"],["か","カ","ka","ka.mp3","加","可"],["さ","サ","sa","sa.mp3","左","散"],["た","タ","ta","ta.mp3","太","多"],["な","ナ","na","na.mp3","奈","那"],["は","ハ","ha","ha.mp3","波","八"],["ま","マ","ma","ma.mp3","末","万"],["や","ヤ","ya","ya.mp3","也","耶"],["ら","ラ","ra","ra.mp3","良","羅"],["わ","ワ","wa","wa.mp3","和","倭"]],
   [["い","イ","i","i.mp3","以","伊"],["き","キ","ki","ki.mp3","幾","企"],["し","シ","shi","shi.mp3","之","志"],["ち","チ","chi","chi.mp3","知","千"],["に","ニ","ni","ni.mp3","仁","尼"],["ひ","ヒ","hi","hi.mp3","比","卑"],["み","ミ","mi","mi.mp3","美","三"],["","","",""],["り","リ","ri","ri.mp3","利","里"],["","","",""]],
@@ -302,7 +301,6 @@ buildTable(youon,"yTable",yRowNames);
 let playList = [], isLoop=false, idx=0;
 let jpVoice = null;
 let currentAudio = null;
-let pausedAudio = null;
 let ttsUtter = null;
 let categoryStarts = [], scrolledCategories = new Set();
 let manualPlayLock = false;
@@ -310,8 +308,8 @@ let playNextTimer = null;
 let playNextRunning = false;
 
 window._pauseState = { audioSrc:null, audioTime:0, ttsPaused:false, prevIsLoop:false, pausedIndex:null, lastMode:'v' };
-window.isPaused = false;
 
+/* get Japanese voice */
 function getJpVoice(){
   if (!window.speechSynthesis) return;
   const voices = window.speechSynthesis.getVoices();
@@ -341,11 +339,11 @@ async function playSingle(text, filename, id){
   if (manualPlayLock) return;
   manualPlayLock = true;
 
-  if (currentAudio && currentAudio !== pausedAudio){
+  if (currentAudio){
     try { currentAudio.pause(); } catch(e){}
     currentAudio = null;
   }
-  if (ttsUtter && window.speechSynthesis && !window.isPaused){
+  if (ttsUtter && window.speechSynthesis){
     try { window.speechSynthesis.cancel(); } catch(e){}
     ttsUtter = null;
   }
@@ -356,11 +354,11 @@ async function playSingle(text, filename, id){
   manualPlayLock = false;
 }
 
-/* playSound: MP3 優先，穩健處理 pausedAudio 與 TTS fallback */
+/* playSound: MP3 優先，TTS fallback */
 function playSound(text, filename){
   return new Promise((resolve) => {
-    if (currentAudio && currentAudio !== pausedAudio){ try{ currentAudio.pause(); }catch(e){} currentAudio = null; }
-    if (ttsUtter && window.speechSynthesis && window.speechSynthesis.speaking && !window.isPaused){
+    if (currentAudio){ try{ currentAudio.pause(); }catch(e){} currentAudio = null; }
+    if (ttsUtter && window.speechSynthesis && window.speechSynthesis.speaking){
       try{ window.speechSynthesis.cancel(); }catch(e){}
       ttsUtter = null;
     }
@@ -380,21 +378,6 @@ function playSound(text, filename){
       ttsUtter.onend = ()=> { ttsUtter = null; finish(); };
       ttsUtter.onerror = ()=> { ttsUtter = null; finish(); };
       try{ window.speechSynthesis.speak(ttsUtter); }catch(e){ finish(); }
-    }
-
-    // 如果 pausedAudio 與 filename 相符，嘗試重用（並嘗試 play）
-    if (pausedAudio && filename && getFilenameFromSrc(pausedAudio.src) === filename){
-      currentAudio = pausedAudio;
-      pausedAudio = null;
-      let handled = false;
-      currentAudio.onplay = ()=> { document.getElementById('modeStatus').innerText = "🟢 播放本機 MP3"; };
-      currentAudio.onended = ()=> { if (!handled){ handled = true; currentAudio = null; finish(); } };
-      currentAudio.onerror = ()=> { if (!handled){ handled = true; currentAudio = null; ttsFallback(); } };
-      const p = currentAudio.play();
-      if (p && typeof p.then === 'function'){
-        p.then(()=>{/* started */}).catch(()=>{ ttsFallback(); });
-      }
-      return;
     }
 
     // 建立新 audio 並播放（通常由使用者互動觸發）
@@ -417,25 +400,6 @@ function playSound(text, filename){
       }
     } else {
       ttsFallback();
-    }
-  });
-}
-
-/* resumeStoredAudioIfAny: 準備元素與事件，不在此自動 play */
-function resumeStoredAudioIfAny(){
-  return new Promise((resolve) => {
-    const ps = window._pauseState;
-    if (pausedAudio && ps.pausedIndex === idx){
-      currentAudio = pausedAudio;
-      pausedAudio = null;
-      let handled = false;
-      currentAudio.onended = ()=> { if (!handled){ handled = true; currentAudio = null; ps.audioSrc = null; ps.audioTime = 0; ps.pausedIndex = null; resolve(); } };
-      currentAudio.onerror = ()=> { if (!handled){ handled = true; currentAudio = null; ps.audioSrc = null; ps.audioTime = 0; ps.pausedIndex = null; resolve(); } };
-      resolve();
-    } else if (ps.ttsPaused && window.speechSynthesis){
-      resolve();
-    } else {
-      resolve();
     }
   });
 }
@@ -484,8 +448,8 @@ function startAuto(mode){
   window._pauseState.lastMode = mode || window._pauseState.lastMode || 'v';
 
   if (playNextTimer){ clearTimeout(playNextTimer); playNextTimer = null; }
-  if (currentAudio && !window.isPaused){ try{ currentAudio.pause(); }catch(e){} currentAudio = null; }
-  if (ttsUtter && window.speechSynthesis && !window.isPaused){ try{ window.speechSynthesis.cancel(); }catch(e){} ttsUtter = null; }
+  if (currentAudio){ try{ currentAudio.pause(); }catch(e){} currentAudio = null; }
+  if (ttsUtter && window.speechSynthesis){ try{ window.speechSynthesis.cancel(); }catch(e){} ttsUtter = null; }
   playNextRunning = false;
 
   if (isLoop) stopAuto();
@@ -506,7 +470,7 @@ function startAuto(mode){
   playNext();
 }
 
-/* playNext with guard and pause handling */
+/* playNext with guard (pause/resume logic removed) */
 async function playNext(){
   if (playNextRunning) return;
   playNextRunning = true;
@@ -543,14 +507,7 @@ async function playNext(){
       if (!isLoop) break;
       markSpeaking(cur.id, true);
 
-      if (window._pauseState.pausedIndex === idx && (pausedAudio || window._pauseState.ttsPaused)){
-        markSpeaking(cur.id, false);
-        document.getElementById('modeStatus').innerText = "⏸ 等待使用者恢復播放";
-        playNextRunning = false;
-        return;
-      } else {
-        await playSound(cur.t, cur.file);
-      }
+      await playSound(cur.t, cur.file);
 
       await new Promise(res => {
         playNextTimer = setTimeout(res, gap);
@@ -579,98 +536,26 @@ function stopAuto(){
   document.getElementById('hBtn').disabled = false;
   document.getElementById('modeStatus').innerText = "🔊 就緒";
   manualPlayLock = false;
-  window.isPaused = false;
   window._pauseState.audioSrc = null;
   window._pauseState.audioTime = 0;
   window._pauseState.ttsPaused = false;
   window._pauseState.prevIsLoop = false;
   window._pauseState.pausedIndex = null;
-  if (pausedAudio){ try{ pausedAudio.pause(); }catch(e){} pausedAudio = null; }
 }
 
-/* pausePlaybackKeepPosition */
-/* 
-function pausePlaybackKeepPosition(){
-  if (window.isPaused) return;
-  window.isPaused = true;
-  window._pauseState.prevIsLoop = !!window.isLoop;
-  window._pauseState.wasPlaying = !!window.isLoop;
-  window.isLoop = false;
-
-  if (playNextTimer){ clearTimeout(playNextTimer); playNextTimer = null; }
-
-  try {
-    if (currentAudio && !currentAudio.paused){
-      window._pauseState.audioSrc = currentAudio.src || null;
-      window._pauseState.audioTime = currentAudio.currentTime || 0;
-      window._pauseState.pausedIndex = idx;
-      pausedAudio = currentAudio;
-      try { currentAudio.pause(); } catch(e){}
-      currentAudio = null;
-    } else {
-      window._pauseState.audioSrc = null;
-      window._pauseState.audioTime = 0;
-      window._pauseState.pausedIndex = idx;
+/* visibility handling: cancel when page hidden to avoid background issues */
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden){
+    if (window.speechSynthesis && window.speechSynthesis.speaking){
+      try { window.speechSynthesis.cancel(); ttsUtter = null; } catch(e){}
+      document.getElementById('modeStatus').innerText = "🔊 已停止（頁面不可見）";
     }
-  } catch(e){
-    window._pauseState.audioSrc = null;
-    window._pauseState.audioTime = 0;
-    window._pauseState.pausedIndex = idx;
-  }
-
-  try {
-    if (ttsUtter && window.speechSynthesis && window.speechSynthesis.speaking){
-      try { window.speechSynthesis.pause(); window._pauseState.ttsPaused = true; } catch(e){ window._pauseState.ttsPaused = false; }
-      window._pauseState.pausedIndex = idx;
-    } else {
-      window._pauseState.ttsPaused = false;
+    if (currentAudio){
+      try { currentAudio.pause(); currentAudio = null; } catch(e){}
     }
-  } catch(e){
-    window._pauseState.ttsPaused = false;
   }
+});
 
-  document.getElementById('modeStatus').innerText = "⏸ 已暫停";
-}
-*/
-  
-/* resumePlaybackFromPosition (must be called from user click) */
-/*
-function resumePlaybackFromPosition(){
-  if (!window.isPaused) return;
-  window.isPaused = false;
-  window.isLoop = !!window._pauseState.prevIsLoop || true;
-  document.getElementById('modeStatus').innerText = "▶ 繼續播放";
-
-  if (pausedAudio){
-    try {
-      const t = Math.min(window._pauseState.audioTime || 0, pausedAudio.duration || window._pauseState.audioTime || 0);
-      if (!isNaN(t) && isFinite(t)) {
-        try { pausedAudio.currentTime = t; } catch(e){}
-      }
-    } catch(e){}
-    pausedAudio.play().then(()=> {
-      currentAudio = pausedAudio;
-      pausedAudio = null;
-      currentAudio.onended = ()=> { currentAudio = null; setTimeout(()=> { if (!playNextRunning) playNext(); }, 80); };
-    }).catch(()=> {
-      setTimeout(()=> { if (!playNextRunning) playNext(); }, 120);
-    });
-    window._pauseState.audioSrc = null;
-    window._pauseState.audioTime = 0;
-    window._pauseState.pausedIndex = null;
-    return;
-  }
-
-  if (window._pauseState.ttsPaused && window.speechSynthesis){
-    try { window.speechSynthesis.resume(); window._pauseState.ttsPaused = false; } catch(e){}
-    setTimeout(()=> { if (!playNextRunning) playNext(); }, 120);
-    return;
-  }
-
-  setTimeout(()=> { if (!playNextRunning) playNext(); }, 120);
-}
-*/
-  
 /* unlock audio on first gesture (safety) */
 function unlockAudioOnFirstGesture(){
   function unlock(){
@@ -692,43 +577,23 @@ unlockAudioOnFirstGesture();
    =========================== */
 document.addEventListener('DOMContentLoaded', () => {
   const scrollBtn = document.getElementById('scrollTopBtn');
-  //const pauseBtn = document.getElementById('pauseBtn');
-  //const resumeBtn = document.getElementById('resumeBtn');
   const floatingGroup = document.getElementById('floatingGroup');
 
   // show/hide floating group based on scroll position
   function updateFloatingVisibility(){
-    // show when user scrolled away from top ( > 20px ), hide when near top
     if (window.scrollY > 20){
       floatingGroup.classList.add('visible');
     } else {
       floatingGroup.classList.remove('visible');
     }
   }
-  // initial state
   updateFloatingVisibility();
-  // update on scroll and on resize
   window.addEventListener('scroll', updateFloatingVisibility, {passive:true});
   window.addEventListener('resize', updateFloatingVisibility);
-
-  // show floating buttons with slight delay to avoid flash
   setTimeout(()=> updateFloatingVisibility(), 120);
 
   scrollBtn?.addEventListener('click', ()=> {
     try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch(e){ window.scrollTo(0,0); }
-  });
-
-  pauseBtn?.addEventListener('click', ()=>{
-    pausePlaybackKeepPosition();
-    pauseBtn.setAttribute('aria-pressed','true');
-    resumeBtn.setAttribute('aria-pressed','false');
-  });
-
-  resumeBtn?.addEventListener('click', ()=>{
-    // resume must be user gesture — this click handler directly calls resume
-    resumePlaybackFromPosition();
-    resumeBtn.setAttribute('aria-pressed','true');
-    pauseBtn.setAttribute('aria-pressed','false');
   });
 
   document.getElementById('vBtn').addEventListener('click', ()=> startAuto('v'));
