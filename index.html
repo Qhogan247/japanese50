@@ -589,6 +589,7 @@ function stopAuto(){
 }
 
 /* pausePlaybackKeepPosition */
+/* 
 function pausePlaybackKeepPosition(){
   if (window.isPaused) return;
   window.isPaused = true;
@@ -630,8 +631,10 @@ function pausePlaybackKeepPosition(){
 
   document.getElementById('modeStatus').innerText = "⏸ 已暫停";
 }
-
+*/
+  
 /* resumePlaybackFromPosition (must be called from user click) */
+/*
 function resumePlaybackFromPosition(){
   if (!window.isPaused) return;
   window.isPaused = false;
@@ -666,7 +669,8 @@ function resumePlaybackFromPosition(){
 
   setTimeout(()=> { if (!playNextRunning) playNext(); }, 120);
 }
-
+*/
+  
 /* unlock audio on first gesture (safety) */
 function unlockAudioOnFirstGesture(){
   function unlock(){
